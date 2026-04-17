@@ -1,3 +1,9 @@
+/**
+ * Server entry point.
+ * Connects Express, Socket.io, and the Mongo database.
+ * Exports { app, server, io } so tests can import the app without
+ * starting a server or hitting the real database.
+ */
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -6,6 +12,8 @@ const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 
 const app = express();
+
+// Socket.io requires a raw http.Server to attach to
 const server = http.createServer(app);
 
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:8080';
@@ -18,7 +26,8 @@ app.get('/health', (req, res) => {
 	res.status(200).json({ status: 'ok' });
 });
 
-// Socket.io
+// Socket.io has its own CORS layer, separate from Express middleware.
+// Both must be configured or the production socket handshake will fail.
 const io = new Server(server, {
 	cors: { origin: corsOrigin }
 });
@@ -31,7 +40,8 @@ io.on('connection', (socket) => {
 	});
 });
 
-// Make io accessible to route handlers via req.app.get('io')
+// Expose io on the app so route handlers can emit without a circular import.
+// Example usage in routes: req.app.get('io').emit(...)
 app.set('io', io);
 
 // Routes
@@ -39,13 +49,12 @@ app.set('io', io);
 
 const PORT = process.env.PORT || 3000;
 
-// Only auto-start when run directly. Don't auto-start when imported by tests.
-// This allows tests to connect to the server without it already being started.
-// require.main is a Node.js variable that is set to the module that was run directly. 
-// If the current module is the one that was run directly, then require.main === module will be true.
-// This check prevents the server from starting when this file is imported as a module in tests, allowing tests to control when the server starts and stops.
+// Only start the listener when this file is run directly (node src/index.js).
+// When Jest imports this file for Supertest, `require.main !== module`, so
+// the server doesn't bind a port or connect to the real DB — tests control
+// their own lifecycle.
 if (require.main === module) {
-	connnectDB(process.env.DB_CONNECTION_STRING).then(() => {
+	connectDB(process.env.DB_CONNECTION_STRING).then(() => {
 		server.listen(PORT, () => {
 			console.log(`Server running on port ${PORT}`);
 		});
