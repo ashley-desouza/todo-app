@@ -10,6 +10,7 @@ const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
+const taskRoutes = require('./routes/tasks');
 
 const app = express();
 
@@ -45,7 +46,14 @@ io.on('connection', (socket) => {
 app.set('io', io);
 
 // Routes
+app.use('/api/tasks', taskRoutes);
 
+// Global error handler declared AFTER all routes.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+	console.error(err);
+	res.status(500).json({ error: 'Internal server error' });
+});
 
 const PORT = process.env.PORT || 3000;
 
