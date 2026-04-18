@@ -16,3 +16,9 @@ A repository layer on top of Mongoose would be redundant, since the Mongoose mod
 - Backend tests use Jest + Supertest, with `mongodb-memory-server` for isolation from Atlas.
 - Tests are colocated by resource (`tests/<resource>.test.js`).
 - Shared setup would move into `jest.config.js` once a second resource appears.
+- The Socket.io broadcast is smoke-tested manually — 
+  - Open the app in two browser tabs
+  - Create a task in one, and the second tab updates without a refresh. 
+  - I chose not to add a dedicated socket integration test given the scope. 
+  - In a production codebase I would add a socket integration test using `socket.io-client` in the test process to check the event payload shape.
+- The REST layer is fully covered, and the socket emit is a one-line side effect in the route handler.
