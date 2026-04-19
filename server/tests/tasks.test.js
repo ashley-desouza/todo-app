@@ -59,7 +59,9 @@ describe('GET /api/tasks', () => {
 
 describe('POST /api/tasks', () => {
 	test('creates a task and returns 201 with the saved document', async () => {
-		const res = await request(app).post('/api/tasks').send({ title: 'Buy groceries' });
+		const res = await request(app)
+			.post('/api/tasks')
+			.send({ title: 'Buy groceries' });
 
 		expect(res.status).toBe(201);
 		expect(res.body).toMatchObject({ title: 'Buy groceries' });
@@ -68,7 +70,9 @@ describe('POST /api/tasks', () => {
 	});
 
 	test('trims whitespace from the title', async () => {
-		const res = await request(app).post('/api/tasks').send({ title: '   Walk the dog   ' });
+		const res = await request(app)
+			.post('/api/tasks')
+			.send({ title: '   Walk the dog   ' });
 
 		expect(res.status).toBe(201);
 		expect(res.body.title).toBe('Walk the dog');
