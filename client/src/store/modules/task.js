@@ -51,7 +51,16 @@ const actions = {
 			const tasks = await tasksApi.fetchAll();
 			commit("SET_TASKS", tasks);
 		} catch (err) {
-			commit("SET_ERROR", err.message || "Failed to load tasks");
+			let message;
+
+			if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
+				/// Server is not reachable — could be down or offline
+				message = "Unable to reach the server. Check that the backend is running.";
+			} else {
+				message = err.message || "Failed to load tasks";
+			}
+
+			commit("SET_ERROR", message);
 		} finally {
 			commit("SET_LOADING", false);
 		}
@@ -64,7 +73,18 @@ const actions = {
 			commit("ADD_TASK", task);
 			return task;
 		} catch (err) {
-			const message = err.response?.data?.error || err.message || "Failed to create task";
+			let message;
+
+			if (err.response?.data?.error) {
+				// Server-side validation error (For example: "Title is required").
+				message = err.response.data.error;
+			} else if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
+				/// Server is not reachable — could be down or offline
+				message = "Unable to reach the server. Check that the backend is running.";
+			} else {
+				message = err.message || "Failed to create task";
+			}
+
 			commit("SET_ERROR", message);
 			throw err;
 		}
