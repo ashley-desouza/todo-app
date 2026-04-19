@@ -14,12 +14,12 @@ const taskSchema = new mongoose.Schema({
 		// Normalize whitespace by trimming leading/trailing spaces.
 		trim: true,
 		// Defensive cap on input size.
-		maxLength: [200, 'Title must be 200 characters or fewer']
+		maxLength: [200, 'Title must be 200 characters or fewer'],
 	},
 	createdAt: {
 		type: Date,
-		default: Date.now
-	}
+		default: Date.now,
+	},
 });
 
 module.exports = mongoose.model('Task', taskSchema);

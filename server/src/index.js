@@ -30,7 +30,7 @@ app.get('/health', (req, res) => {
 // Socket.io has its own CORS layer, separate from Express middleware.
 // Both must be configured or the production socket handshake will fail.
 const io = new Server(server, {
-	cors: { origin: corsOrigin }
+	cors: { origin: corsOrigin },
 });
 
 io.on('connection', (socket) => {

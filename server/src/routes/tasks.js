@@ -1,7 +1,7 @@
 /**
  * Task-related routes.
  * Routes stay focused on HTTP concerns (status codes, request parsing, socket emission)
- * 
+ *
  * GET /api/tasks - Get all tasks (newest first)
  * POST /api/tasks - Add a new task. Broadcast to all clients via Socket.io.
  */
