@@ -169,10 +169,12 @@ A few choices I made that I thought were worth calling out:
 
 **No Vue Router.** Single-screen app. Adding a router would be pure ceremony.
 
+**Socket.io over SSE.** For a broadcast-only pattern like this, Server-Sent Events (SSE) would be a leaner fit — one-way, HTTP-native, built-in reconnection. I chose Socket.io because "real-time updates" is conventionally WebSocket territory in the Node ecosystem, and Socket.io's features such as rooms, automatic transport fallback etc. scale better if the feature grew. At this scale, the overhead difference is negligible. If I were aggressively cost-optimizing infrastructure or the feature stayed strictly one-way forever, I would switch to SSE.
+
 **Flat service layer, no repository on top of Mongoose.** Explained above.
 
-**Error states, not just happy path.** The UI distinguishes between loading, empty list, validation errors (400), and network failures (server unreachable).
+**Error states, not just happy path.** The UI distinguishes between a loading state, an empty list, validation errors (400), and network failures (server unreachable).
 
-**Scoped styles per component + a small global stylesheet.** Component styles are `<style scoped>`; global styles (body reset, app container) live in `client/src/styles/global.css`.
+**Scoped styles per component + a small global stylesheet.** Component styles are `<style scoped>`; global styles live in `client/src/styles/global.css`.
 
 **Prettier + EditorConfig at the monorepo root.** Shared formatting rules, with a `server/.prettierrc.json` override for using single quotes (Node convention) while the client uses the Vue CLI default of double quotes (Vue convention).
