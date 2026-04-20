@@ -2,7 +2,7 @@
 
 A full-stack to-do list application with real-time updates.
 
-> **Live demo:** _(link to be added)_
+> **Live demo:** [https://todo-app-henna-ten-57.vercel.app](https://todo-app-henna-ten-57.vercel.app)
 
 **Stack:** Node.js, Express, MongoDB (Atlas), Socket.io, Vue 2, Vuex
 
@@ -153,11 +153,9 @@ I chose not to add a dedicated socket integration test given the scope. In a pro
 
 ## Deployment
 
-_(filled in after deployment)_
-
-- **Frontend:** Vercel
-- **Backend:** Render (free tier)
-- **Database:** MongoDB Atlas (free tier)
+- **Frontend:** [Vercel](https://todo-app-henna-ten-57.vercel.app)
+- **Backend:** [Render](https://todo-app-server-rxpb.onrender.com)
+- **Database:** MongoDB Atlas
 
 **Note**: the backend is on Render's free tier, which spins the container down after 15 minutes of inactivity. An UptimeRobot health-check pings `/health` every 5 minutes to keep it warm. The first request after a deploy may be slow.
 
