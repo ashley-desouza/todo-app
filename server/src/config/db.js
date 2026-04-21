@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 
 /**
- * MongoDB connection helper.
- * Exit the process on failure.
- * A running server without a DB would accept requests and fail on every query.
- * Exiting immediately makes the problem obvious and prevents a broken server from running.
+ * Connect to MongoDB using Mongoose.
+ * Exit the process on failure. The server should not run without a DB connection.
  */
 async function connectDB(uri) {
 	try {
@@ -12,7 +10,7 @@ async function connectDB(uri) {
 		console.log('MongoDB connected successfully');
 	} catch (err) {
 		console.error('Error connecting to MongoDB:', err.message);
-		process.exit(1); // Exit process with failure
+		process.exit(1);
 	}
 }
 

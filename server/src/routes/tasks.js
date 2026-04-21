@@ -1,9 +1,8 @@
 /**
  * Task-related routes.
- * Routes stay focused on HTTP concerns (status codes, request parsing, socket emission)
  *
  * GET /api/tasks - Get all tasks (newest first)
- * POST /api/tasks - Add a new task. Broadcast to all clients via Socket.io.
+ * POST /api/tasks - Add a new task, and then broadcast to all clients via Socket.io.
  */
 
 const { Router } = require('express');
@@ -13,7 +12,6 @@ const router = Router();
 
 router.get('/', async (req, res, next) => {
 	try {
-		// Get all tasks, sorted by creation date (newest first)
 		const tasks = await taskService.getAllTasks();
 		res.json(tasks);
 	} catch (err) {
@@ -25,6 +23,7 @@ router.post('/', async (req, res, next) => {
 	try {
 		const { title } = req.body;
 
+		// Create and persist the new task document to the database.
 		const task = await taskService.createTask({ title });
 
 		// Broadcast to every connected client so their task list updates in real time.
@@ -32,6 +31,7 @@ router.post('/', async (req, res, next) => {
 
 		res.status(201).json(task);
 	} catch (err) {
+		// Mongoose validation errors should return a 400 status with the error message.
 		if (err.name === 'ValidationError') {
 			return res.status(400).json({ error: err.message });
 		}
