@@ -1,9 +1,9 @@
 <template>
 	<div class="task-list">
-		<div v-if="isLoading" class="state-message">Loading tasks...</div>
+		<div v-if="isLoading" class="page-loading">Loading tasks...</div>
 
-		<div v-else-if="tasks.length === 0" class="state-message empty">
-			No tasks yet. Add a task above to get started.
+		<div v-else-if="tasks.length === 0" class="page-loading empty">
+			No tasks yet. Add a task to get started.
 		</div>
 
 		<ul v-else class="tasks">
@@ -50,7 +50,7 @@ export default {
 	margin-top: 1rem;
 }
 
-.state-message {
+.page-loading {
 	text-align: center;
 	padding: 2rem 1rem;
 	color: #6b7280;

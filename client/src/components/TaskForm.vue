@@ -3,7 +3,7 @@
 		<input
 			v-model="title"
 			type="text"
-			placeholder="What needs to be done?"
+			placeholder="Please enter a task title..."
 			class="task-input"
 			:disabled="isSubmitting"
 			maxlength="200"
@@ -43,7 +43,7 @@ export default {
 			try {
 				await this.createTask(this.title.trim());
 
-				// Clear only on success.
+				// Clear on success.
 				this.title = "";
 			} catch (err) {
 				// Error is already stored in Vuex state by the action.

@@ -8,7 +8,7 @@
 		<main>
 			<TaskForm />
 
-			<div v-if="error" class="error-banner">
+			<div v-if="error" class="page-error">
 				{{ error }}
 			</div>
 
@@ -40,12 +40,12 @@ export default {
 	},
 
 	async mounted() {
-		// Load the initial list from the server.
+		// Load the initial task list from the server.
 		await this.fetchTasks();
 
 		// Subscribe to real-time task creation events.
-		// When another client creates a task, add it to the store.
 		const socket = getSocket();
+		// When another client creates a task, add it to the store.
 		socket.on("task:created", (task) => {
 			this.receiveTaskFromSocket(task);
 		});
@@ -76,7 +76,7 @@ export default {
 	font-size: 0.95rem;
 }
 
-.error-banner {
+.page-error {
 	padding: 0.75rem 1rem;
 	background-color: #fef2f2;
 	color: #991b1b;
