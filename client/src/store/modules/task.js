@@ -2,10 +2,13 @@ import { tasksApi } from "@/services/api";
 
 /**
  * Tasks module.
- * Centralizes task state. Updates arrive from two sources:
- *   - User actions (createTask via the API)
- *   - Socket events (task:created broadcast from the server)
- * Vuex is the single reducer both sources feed into.
+ *
+ * Holds the task state for the app. Updates arrive from two places:
+ *   - User actions (the current user adds a task via POST)
+ *   - Socket events (another user adds a task, which are broadcast from the server)
+ *
+ * Both paths go through this store, and so there is only one place to update
+ * the task list and one place to debug if something goes wrong with tasks.
  */
 
 const state = () => {
@@ -25,11 +28,13 @@ const mutations = {
 		state.tasks = tasks;
 	},
 
+	// When the current user creates a task, it arrives twice —
+	//   1. Once from the POST response,
+	//   2. And once from the socket broadcast.
+	// Dedupe by _id so we don't show it twice.
 	ADD_TASK(state, task) {
-		// If a task is created by this client, it's added from the POST response AND from the socket broadcast.
-		// Skip if we already have it.
 		if (!state.tasks.some((t) => t._id === task._id)) {
-			// Add to the top of the list so newest shows first.
+			// Add to the front of the list so that the newest task shows first.
 			state.tasks.unshift(task);
 		}
 	},
@@ -51,16 +56,7 @@ const actions = {
 			const tasks = await tasksApi.fetchAll();
 			commit("SET_TASKS", tasks);
 		} catch (err) {
-			let message;
-
-			if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
-				/// Server is not reachable — could be down or offline
-				message = "Unable to reach the server. Check that the backend is running.";
-			} else {
-				message = err.message || "Failed to load tasks";
-			}
-
-			commit("SET_ERROR", message);
+			commit("SET_ERROR", mapErrorToMessage(err, "Failed to load tasks"));
 		} finally {
 			commit("SET_LOADING", false);
 		}
@@ -73,28 +69,34 @@ const actions = {
 			commit("ADD_TASK", task);
 			return task;
 		} catch (err) {
-			let message;
-
-			if (err.response?.data?.error) {
-				// Server-side validation error (For example: "Title is required").
-				message = err.response.data.error;
-			} else if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
-				/// Server is not reachable — could be down or offline
-				message = "Unable to reach the server. Check that the backend is running.";
-			} else {
-				message = err.message || "Failed to create task";
-			}
-
-			commit("SET_ERROR", message);
+			commit("SET_ERROR", mapErrorToMessage(err, "Failed to create task"));
+			// Re-throw so the TaskForm component can decide whether to keep the user input.
 			throw err;
 		}
 	},
 
-	// Called from App.vue when a socket event arrives.
+	// Called from App.vue when a socket event arrives for a task created by another client.
 	receiveTaskFromSocket({ commit }, task) {
 		commit("ADD_TASK", task);
 	},
 };
+
+/**
+ * Translate an axios error into a user-facing message.
+ * Handles three cases:
+ *   - Server-side validation error (like"Title is required") - Return the server's message.
+ *   - Network error - Return a message that the server is unreachable.
+ *   - Other error - Return a default message.
+ */
+function mapErrorToMessage(err, defaultMessage) {
+	if (err.response?.data?.error) {
+		return err.response.data.error;
+	}
+	if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
+		return "Unable to reach the server. Check that the server is running.";
+	}
+	return err.message || defaultMessage;
+}
 
 export default {
 	namespaced: true,
