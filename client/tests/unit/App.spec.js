@@ -3,15 +3,18 @@ import Vuex from "vuex";
 import App from "@/App.vue";
 
 // Mock the api module so tests do not open a real socket.
-jest.mock("@/services/api", () => ({
-	getSocket: jest.fn().mockReturnValue({
-		on: jest.fn(),
-		disconnect: jest.fn(),
-	}),
-	disconnectSocket: jest.fn(),
-}));
+jest.mock("@/services/api", () => {
+	return {
+		getSocket: jest.fn().mockReturnValue({
+			on: jest.fn(),
+			disconnect: jest.fn(),
+		}),
+		disconnectSocket: jest.fn(),
+	};
+});
 
-// Create a local Vue constructor for testing. This allows us to add Vuex without affecting the global Vue.
+// Create a local Vue constructor for testing.
+// This allows us to add Vuex without affecting the global Vue instance used in the app.
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
@@ -22,7 +25,7 @@ describe("App Component", () => {
 	beforeEach(() => {
 		fetchTasksAction = jest.fn().mockResolvedValue([]);
 
-		// Create a new Vuex store instance with the mocked action for each test.
+		// Create a new Vuex store instance with the mocked action.
 		store = new Vuex.Store({
 			modules: {
 				tasks: {
@@ -51,12 +54,13 @@ describe("App Component", () => {
 	test("dispatches fetchTasks when mounted", async () => {
 		shallowMount(App, { localVue, store });
 
+		// Flush any pending promises so mounted()'s await this.fetchTasks() completes before we assert.
 		await new Promise((resolve) => setTimeout(resolve, 0));
 
 		expect(fetchTasksAction).toHaveBeenCalled();
 	});
 
-	test("shows error banner when store has an error", () => {
+	test("shows error message when the store has an error", () => {
 		// Create a new store instance with an error message in the state.
 		store = new Vuex.Store({
 			modules: {

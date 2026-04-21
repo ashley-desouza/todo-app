@@ -2,8 +2,8 @@ import { shallowMount } from "@vue/test-utils";
 import TaskList from "@/components/TaskList.vue";
 
 describe("TaskList Component", () => {
-	test("shows loading message when isLoading is true", () => {
-		// Use shallowMount since we don't need to render child components for this test.
+	test("shows a loading message when isLoading is true", () => {
+		// Use shallowMount since we do not need to render child components for this test.
 		const wrapper = shallowMount(TaskList, {
 			propsData: { tasks: [], isLoading: true },
 		});
@@ -11,8 +11,8 @@ describe("TaskList Component", () => {
 		expect(wrapper.text()).toContain("Loading tasks");
 	});
 
-	test("shows empty state when tasks array is empty and not loading", () => {
-		// Use shallowMount since we don't need to render child components for this test.
+	test("shows an empty state message when tasks array is empty and not loading", () => {
+		// Use shallowMount since we do not need to render child components for this test.
 		const wrapper = shallowMount(TaskList, {
 			propsData: { tasks: [], isLoading: false },
 		});
@@ -20,13 +20,13 @@ describe("TaskList Component", () => {
 		expect(wrapper.text()).toContain("No tasks yet");
 	});
 
-	test("renders a list of tasks", () => {
+	test("renders the list of tasks when tasks exist", () => {
 		const tasks = [
 			{ _id: "1", title: "First task", createdAt: "2026-04-19T12:00:00.000Z" },
 			{ _id: "2", title: "Second task", createdAt: "2026-04-19T13:00:00.000Z" },
 		];
 
-		// Use shallowMount since we don't need to render child components for this test.
+		// Use shallowMount since we do not need to render child components for this test.
 		const wrapper = shallowMount(TaskList, {
 			propsData: { tasks, isLoading: false },
 		});
@@ -40,7 +40,7 @@ describe("TaskList Component", () => {
 	test("does not show loading or empty state when tasks exist", () => {
 		const tasks = [{ _id: "1", title: "A task", createdAt: "2026-04-19T12:00:00.000Z" }];
 
-		// Use shallowMount since we don't need to render child components for this test.
+		// Use shallowMount since we do not need to render child components for this test.
 		const wrapper = shallowMount(TaskList, {
 			propsData: { tasks, isLoading: false },
 		});

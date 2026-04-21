@@ -1,10 +1,11 @@
 /**
- * Integration tests for /api/tasks.
- * Uses an in-memory MongoDB so tests are isolated from Atlas —
- * fast, deterministic, no shared state.
+ * Integration tests for GET and POST /api/tasks.
+ * Uses an in-memory MongoDB so tests are isolated from Atlas.
  *
- * Supertest drives the Express app in-process, so no port binding
- * or real network I/O is involved.
+ * Supertest is used to make HTTP requests against the Express app without needing to run an actual server.
+ *
+ * The MongoDB connection is established before all tests and is closed after all tests.
+ * Each test starts with a clean database state by deleting all documents from all collections after each test.
  */
 const request = require('supertest');
 const mongoose = require('mongoose');
@@ -13,15 +14,15 @@ const { app } = require('../src/index');
 
 let mongoServer;
 
-// First run downloads the MongoDB binary (~100MB), which can exceed
-// Jest's default 5s hook timeout. Hence the 60 second timeout.
-// Cached locally after first run.
+// The first time the tests run, MongoMemoryServer may need to download a MongoDB binary,
+// which can take time and could exceed the default Jest timeout of 5 seconds. Hence the 60 second timeout.
+// The MongoDB binary is cached locally after that.
 beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create();
 	await mongoose.connect(mongoServer.getUri());
-}, 60000); // Increase timeout for MongoDB binaries download on CI
+}, 60000);
 
-// Wipe collections between tests.
+// Delete all documents from all collections.
 afterEach(async () => {
 	const collections = mongoose.connection.collections;
 	for (const key in collections) {
@@ -29,6 +30,7 @@ afterEach(async () => {
 	}
 });
 
+// Close the Mongoose connection and stop MongoMemoryServer after all tests are done.
 afterAll(async () => {
 	await mongoose.disconnect();
 	await mongoServer.stop();
@@ -42,9 +44,9 @@ describe('GET /api/tasks', () => {
 		expect(res.body).toEqual([]);
 	});
 
-	test('returns all tasks, newest first', async () => {
+	test('returns all tasks sorted by newest first', async () => {
 		await request(app).post('/api/tasks').send({ title: 'First task' });
-		// Add a small delay so that the 2 tasks have different createdAt timestamps.
+		// Add a small delay to guarantee that the 2 tasks have distinct createdAt timestamps.
 		await new Promise((resolve) => setTimeout(resolve, 10));
 		await request(app).post('/api/tasks').send({ title: 'Second task' });
 
@@ -58,7 +60,7 @@ describe('GET /api/tasks', () => {
 });
 
 describe('POST /api/tasks', () => {
-	test('creates a task and returns 201 with the saved document', async () => {
+	test('creates a task and returns 201', async () => {
 		const res = await request(app)
 			.post('/api/tasks')
 			.send({ title: 'Buy groceries' });
