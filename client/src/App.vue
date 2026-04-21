@@ -45,7 +45,9 @@ export default {
 
 		// Subscribe to real-time task creation events.
 		const socket = getSocket();
-		// When another client creates a task, add it to the store.
+
+		// Server broadcasts task:created to all connected clients on every POST.
+		// The dedupe happens in the store.
 		socket.on("task:created", (task) => {
 			this.receiveTaskFromSocket(task);
 		});

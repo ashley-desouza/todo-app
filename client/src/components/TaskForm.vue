@@ -46,7 +46,8 @@ export default {
 				// Clear on success.
 				this.title = "";
 			} catch (err) {
-				// Error is already stored in Vuex state by the action.
+				// Intentionally empty — the Vuex action has already stored the error message in state,
+				// which is displayed in App.vue
 			} finally {
 				this.isSubmitting = false;
 			}
