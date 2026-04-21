@@ -160,7 +160,7 @@ I chose not to add a dedicated socket integration test given the scope. In a pro
 ## Deployment
 
 - **Frontend:** [Vercel](https://todo-app-henna-ten-57.vercel.app)
-- **Backend:** Render — API-only, root returns 404 by design. Health endpoint: [[Render](https://todo-app-server-rxpb.onrender.com/health)](https://todo-app-server-rxpb.onrender.com/health)
+- **Backend:** Render - API-only, root returns 404 by design. Health endpoint: [https://todo-app-server-rxpb.onrender.com/health](https://todo-app-server-rxpb.onrender.com/health)
 - **Database:** MongoDB Atlas
 
 **Note**: The backend is on Render's free tier, which spins the container down after 15 minutes of inactivity. An UptimeRobot health-check pings `/health` every 5 minutes to keep it warm. The first request after a deploy may be slow.
