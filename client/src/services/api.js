@@ -2,7 +2,8 @@ import axios from "axios";
 import { io } from "socket.io-client";
 
 /**
- * API layer — centralizes all network I/O.
+ * API layer for the app.
+ * Contains both REST calls and socket connection logic.
  */
 
 const API_BASE_URL = process.env.VUE_APP_API_URL || "http://localhost:3000";
@@ -14,16 +15,20 @@ const httpClient = axios.create({
 
 // REST calls
 export const tasksApi = {
-	fetchAll() {
-		return httpClient.get("/api/tasks").then((res) => res.data);
+	async fetchAll() {
+		const res = await httpClient.get("/api/tasks");
+		return res.data;
 	},
 
-	create(title) {
-		return httpClient.post("/api/tasks", { title }).then((res) => res.data);
+	async create(title) {
+		const res = await httpClient.post("/api/tasks", { title });
+		return res.data;
 	},
 };
 
-// Socket connection - lazy so tests can import the module without opening a socket.
+// Socket connection. A single socket instance is created for the app.
+// The socket is initialized lazily in getSocket() when it is called from App.vue's mounted() hook.
+// This way we avoid creating a socket connection during testing when App.vue is not mounted.
 let socket = null;
 
 export function getSocket() {
